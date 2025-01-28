@@ -1,0 +1,224 @@
+#include <IRremote.h>
+#include <Servo.h>
+
+#define PIN_RECEIVER 45
+
+IRrecv receiver(PIN_RECEIVER);
+
+Servo Krishka;
+Servo Kleshna;
+Servo Povorot;
+Servo Sustav1;
+Servo Sustav2;
+Servo Sustav3;
+
+void setup() {
+  Krishka.attach(11);
+  Kleshna.attach(3);
+  Povorot.attach(10);
+  Sustav1.attach(9);
+  Sustav2.attach(6);
+  Sustav3.attach(5);
+  Sustav1.write(0);
+  Sustav2.write(90);
+  Sustav3.write(180);
+  Kleshna.write(0);
+  Povorot.write(0);
+  Krishka.write(90);
+  pinMode(47, OUTPUT);
+  pinMode(49, OUTPUT);
+  pinMode(51, OUTPUT);
+  pinMode(53, OUTPUT);
+  receiver.enableIRIn();
+}
+
+int r=0;
+
+void Zahvat() {
+  Sustav1.write(45);
+  Sustav3.write(135);
+  delay(3000);
+  Kleshna.write(90);
+  delay(3000);
+  Sustav1.write(0);
+  Sustav3.write(90);
+  delay(3000);
+  Povorot.write(180);
+  Krishka.write(0);
+  delay(3000);
+  Kleshna.write(30);
+  delay(1000);
+  Povorot.write(0);
+  delay(3000);
+  Sustav3.write(180);
+  Krishka.write(90);
+}
+
+void forward() {
+  r=1;
+  while (r==1) {
+    digitalWrite(49, HIGH);
+    digitalWrite(53, HIGH);
+    digitalWrite(47, HIGH);
+    digitalWrite(51, HIGH);
+    delay(10);
+    digitalWrite(47, LOW);
+    digitalWrite(51, LOW);
+    if (receiver.decode()) {
+      digitalWrite(49, LOW);
+      digitalWrite(53, LOW);
+      switch (receiver.decodedIRData.command) {
+        case 2:
+          break;
+        case 152:
+          r=0;
+          backward();
+          break;
+        case 224:
+          r=0;
+          left();
+          break;
+        case 144:
+          r=0;
+          right();
+          break;
+        case 168:
+          Zahvat();
+          break;
+      }
+      receiver.resume();
+    }
+  }
+}
+
+void backward() {
+  r=1;
+  while (r==1) {
+    digitalWrite(47, HIGH);    
+    digitalWrite(51, HIGH);
+    delay(10);
+    digitalWrite(47, LOW);
+    digitalWrite(51, LOW);
+    if (receiver.decode()) {
+      digitalWrite(49, LOW);
+      digitalWrite(53, LOW);
+      switch (receiver.decodedIRData.command) {
+        case 152:
+          break;
+        case 2:
+          r=0;
+          forward();
+          break;
+        case 224:
+          r=0;
+          left();
+          break;
+        case 144:
+          r=0;
+          right();
+          break;
+        case 168:
+          Zahvat();
+          break;
+      }
+      receiver.resume();
+    }
+  }
+}
+
+void left() {
+  r=1;
+  while (r==1) {
+    digitalWrite(53, HIGH);
+    digitalWrite(47, HIGH);
+    digitalWrite(51, HIGH);
+    delay(10);
+    digitalWrite(47, LOW);
+    digitalWrite(51, LOW);
+    if (receiver.decode()) {
+      digitalWrite(49, LOW);
+      digitalWrite(53, LOW);
+      switch (receiver.decodedIRData.command) {
+        case 224:
+          break;
+        case 2:
+          r=0;
+          forward();
+          break;
+        case 152:
+          r=0;
+          backward();
+          break;
+        case 144:
+          r=0;
+          right();
+          break;
+        case 168:
+          Zahvat();
+          break;
+      }
+      receiver.resume();
+    }
+  }
+}
+
+void right() {
+  r=1;
+  while (r==1) {
+    digitalWrite(49, HIGH);
+    digitalWrite(47, HIGH);
+    digitalWrite(51, HIGH);
+    delay(10);
+    digitalWrite(47, LOW);
+    digitalWrite(51, LOW);
+    if (receiver.decode()) {
+      digitalWrite(49, LOW);
+      digitalWrite(53, LOW);
+      switch (receiver.decodedIRData.command) {
+        case 144:
+          break;
+        case 2:
+          r=0;
+          forward();
+          break;
+        case 152:
+          r=0;
+          backward();
+          break;
+        case 224:
+          r=0;
+          left();
+          break;
+        case 168:
+          Zahvat();
+          break;
+      }
+      receiver.resume();
+    }
+  }
+}
+
+void loop() {
+  if (receiver.decode()) {
+  digitalWrite(49, LOW);
+  digitalWrite(53, LOW);
+    switch (receiver.decodedIRData.command) {
+      case 2:
+        forward();
+        break;
+      case 152:
+        backward();
+        break;
+      case 224:
+        left();
+        break;
+      case 144:
+        right();
+        break;
+      case 168:
+        Zahvat();
+        break;
+    }
+    receiver.resume();
+  }
+}
